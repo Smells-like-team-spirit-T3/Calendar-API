@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CalendarAPI.Models.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,7 +33,12 @@ namespace CalendarAPI.Models.Repositories.Base
 
         public T GetById(int? id)
         {
-            return context.Set<T>().Find(id);
+            var result = context.Set<T>().Find(id);
+            if (result == null)
+            {
+                throw new NullReferenceException();
+            }
+            return result;
         }
 
         public void Remove(T entity)

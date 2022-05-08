@@ -14,6 +14,6 @@ namespace CalendarAPI.Models.CalendarModels
         public DateTime EndDate { get; set; }
         public decimal Cost { get; set; }
         public int Duration { get; set; }
-        public int Description { get; set; }
+        public string Description { get; set; }
     }
 }
