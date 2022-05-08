@@ -1,6 +1,7 @@
 ﻿using CalendarAPI.Controllers;
 using CalendarAPI.Models;
 using CalendarAPI.Models.CalendarModels;
+using CalendarAPI.Models.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System;
@@ -120,6 +121,45 @@ namespace CalendarAPI.Tests
             // Act
             var result = controller.GetEventById(0).Result as NotFoundResult;
             var expected = controller.NotFound();
+
+            // Assert
+            Assert.Equal(expected.StatusCode, result.StatusCode);
+        }
+
+        [Fact]
+        public void AddEventToTripGetsEventAndTripIdAddsEventReturnsAddedEvent()
+        {
+            // Arrange
+            var mockUnitOfWork = new Mock<IUnitOfWork>();
+            var mockTripRepository = new Mock<ITripRepository>();
+            mockTripRepository.Setup(repo => repo.GetById(0)).Returns(trip);
+            mockUnitOfWork.SetupGet(unit => unit.Trips).Returns(mockTripRepository.Object);
+
+            var controller = new EventController(mockUnitOfWork.Object);
+
+            // Act
+            var result = controller.AddEventToTrip(0, events[0]).Result as OkObjectResult;
+            var expected = events[0];
+
+            // Assert
+            Assert.Equal(expected, result.Value);
+            mockTripRepository.Verify(mock => mock.GetById(0));
+            mockUnitOfWork.Verify(mock => mock.Save());
+        }
+
+        [Fact]
+        public void AddEventToTripGetsNullReturnsCode400()
+        {
+            // Arrange
+            var mockUnitOfWork = new Mock<IUnitOfWork>();
+            var mockTripRepository = new Mock<ITripRepository>();
+            mockUnitOfWork.SetupGet(unit => unit.Trips).Returns(mockTripRepository.Object);
+
+            var controller = new EventController(mockUnitOfWork.Object);
+
+            // Act
+            var result = controller.AddEventToTrip(0,null).Result as BadRequestResult;
+            var expected = controller.BadRequest();
 
             // Assert
             Assert.Equal(expected.StatusCode, result.StatusCode);

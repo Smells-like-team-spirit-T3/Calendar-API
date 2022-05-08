@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace CalendarAPI.Controllers
 {
@@ -20,7 +19,7 @@ namespace CalendarAPI.Controllers
         {
             UnitOfWork = unitOfWork;
         }
-        // GET: api/<TripController>
+
         [HttpGet]
         public ActionResult<IEnumerable<Trip>> GetAllTrips()
         {
@@ -32,7 +31,6 @@ namespace CalendarAPI.Controllers
             return Ok(result);
         }
 
-        // GET api/<TripController>/5
         [HttpGet("{id}")]
         public ActionResult<Trip> GetTripById(int id)
         {
@@ -50,7 +48,13 @@ namespace CalendarAPI.Controllers
         [HttpPost]
         public ActionResult<Trip> AddTrip([FromBody] Trip trip)
         {
-            throw new NotImplementedException();
+            if (trip == null)
+            {
+                return BadRequest();
+            }
+            UnitOfWork.Trips.Add(trip);
+            UnitOfWork.Save();
+            return Ok(trip);
         }
 
         // PUT api/<TripController>/5
