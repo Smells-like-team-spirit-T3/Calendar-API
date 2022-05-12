@@ -20,9 +20,9 @@ namespace CalendarAPI.Controllers
             UnitOfWork = unitOfWork;
         }
 
-        [HttpGet("{id}")]
+        [HttpGet]
         [Route("trip")]
-        public ActionResult<IEnumerable<Event>> GetEventsByTripId(int id)
+        public ActionResult<IEnumerable<Event>> GetEventsByTripId([FromQuery]int id)
         {
             var trip = UnitOfWork.Trips.GetById(id);
             if (trip.Events.Count == 0)
@@ -45,14 +45,14 @@ namespace CalendarAPI.Controllers
             }
         }
 
-        // POST api/<EventController>
         [HttpPost]
-        public ActionResult<Event> AddEventToTrip(int id, [FromBody] Event value)
+        public ActionResult<Event> AddEventToTrip([FromQuery] int id, [FromBody] Event value)
         {
             if (value == null)
             {
                 return BadRequest();
             }
+            UnitOfWork.Events.Add(value);
             var targetTrip = UnitOfWork.Trips.GetById(id);
             targetTrip.Events.Add(value);
             UnitOfWork.Save();

@@ -13,6 +13,6 @@ namespace CalendarAPI.Models.CalendarModels
         public DateTime EndDate { get; set; }
         public decimal Cost { get; set; }
         public int AmountParticipants { get; set; }
-        public List<Event> Events { get; set; }
+        public virtual List<Event> Events { get; set; } = new List<Event>();
     }
 }

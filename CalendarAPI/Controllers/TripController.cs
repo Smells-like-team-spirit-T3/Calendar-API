@@ -44,7 +44,6 @@ namespace CalendarAPI.Controllers
             } 
         }
 
-        // POST api/<TripController>
         [HttpPost]
         public ActionResult<Trip> AddTrip([FromBody] Trip trip)
         {
@@ -66,7 +65,7 @@ namespace CalendarAPI.Controllers
 
         // DELETE api/<TripController>/5
         [HttpDelete("{id}")]
-        public ActionResult DeleteTrip(int id)
+        public ActionResult DeleteTrip( int id)
         {
             throw new NotImplementedException();
         }
