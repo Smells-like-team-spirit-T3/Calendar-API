@@ -63,7 +63,7 @@ namespace CalendarAPI.Tests
             var mockUnitOfWork = new Mock<IUnitOfWork>();
             mockUnitOfWork.Setup(unit => unit.Trips.GetById(0)).Returns(trip);
 
-            var controller = new EventController(mockUnitOfWork.Object);
+            var controller = new EventsController(mockUnitOfWork.Object);
 
             // Act
             var result = controller.GetEventsByTripId(0).Result as OkObjectResult;
@@ -82,7 +82,7 @@ namespace CalendarAPI.Tests
             var mockUnitOfWork = new Mock<IUnitOfWork>();
             mockUnitOfWork.Setup(unit => unit.Trips.GetById(0)).Returns(trip);
 
-            var controller = new EventController(mockUnitOfWork.Object);
+            var controller = new EventsController(mockUnitOfWork.Object);
 
             // Act
             var result = controller.GetEventsByTripId(0).Result as NotFoundResult;
@@ -99,7 +99,7 @@ namespace CalendarAPI.Tests
             var mockUnitOfWork = new Mock<IUnitOfWork>();
             mockUnitOfWork.Setup(unit => unit.Events.GetById(0)).Returns(events[0]);
 
-            var controller = new EventController(mockUnitOfWork.Object);
+            var controller = new EventsController(mockUnitOfWork.Object);
 
             // Act
             var result = controller.GetEventById(0).Result as OkObjectResult;
@@ -116,7 +116,7 @@ namespace CalendarAPI.Tests
             var mockUnitOfWork = new Mock<IUnitOfWork>();
             mockUnitOfWork.Setup(unit => unit.Events.GetById(0)).Throws(new NullReferenceException());
 
-            var controller = new EventController(mockUnitOfWork.Object);
+            var controller = new EventsController(mockUnitOfWork.Object);
 
             // Act
             var result = controller.GetEventById(0).Result as NotFoundResult;
@@ -135,7 +135,7 @@ namespace CalendarAPI.Tests
             mockTripRepository.Setup(repo => repo.GetById(0)).Returns(trip);
             mockUnitOfWork.SetupGet(unit => unit.Trips).Returns(mockTripRepository.Object);
 
-            var controller = new EventController(mockUnitOfWork.Object);
+            var controller = new EventsController(mockUnitOfWork.Object);
 
             // Act
             var result = controller.AddEventToTrip(0, events[0]).Result as OkObjectResult;
@@ -155,10 +155,54 @@ namespace CalendarAPI.Tests
             var mockTripRepository = new Mock<ITripRepository>();
             mockUnitOfWork.SetupGet(unit => unit.Trips).Returns(mockTripRepository.Object);
 
-            var controller = new EventController(mockUnitOfWork.Object);
+            var controller = new EventsController(mockUnitOfWork.Object);
 
             // Act
             var result = controller.AddEventToTrip(0,null).Result as BadRequestResult;
+            var expected = controller.BadRequest();
+
+            // Assert
+            Assert.Equal(expected.StatusCode, result.StatusCode);
+        }
+
+        [Fact]
+        public void ChangeEventGetsEventReturnsChangedEvent()
+        {
+            // Arrange
+            events[1].Id = 0;
+
+            var mockUnitOfWork = new Mock<IUnitOfWork>();
+            mockUnitOfWork.Setup(unit => unit.Events.GetById(events[1].Id)).Returns(events[0]);
+
+            var controller = new EventsController(mockUnitOfWork.Object);
+
+            // Act
+            var okObject = controller.ChangeEvent(events[1]).Result as OkObjectResult;
+            var result = okObject.Value as Event;
+            var expected = events[1];
+
+            // Assert
+            Assert.Equal(expected.Id, result.Id);
+            Assert.Equal(expected.Title, result.Title);
+            Assert.Equal(expected.Cost, result.Cost);
+            Assert.Equal(expected.Description, result.Description);
+            Assert.Equal(expected.EndDate, result.EndDate);
+            Assert.Equal(expected.StartDate, result.StartDate);
+            Assert.Equal(expected.Type, result.Type);
+        }
+
+        [Fact]
+        public void ChangeEventGetsNullReturnsCode400()
+        {
+            // Arrange
+            var mockUnitOfWork = new Mock<IUnitOfWork>();
+            var mockEventRepository = new Mock<IEventRepository>();
+            mockUnitOfWork.SetupGet(unit => unit.Events).Returns(mockEventRepository.Object);
+
+            var controller = new EventsController(mockUnitOfWork.Object);
+
+            // Act
+            var result = controller.ChangeEvent(null).Result as BadRequestResult;
             var expected = controller.BadRequest();
 
             // Assert

@@ -11,11 +11,11 @@ namespace CalendarAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TripController : ControllerBase
+    public class TripsController : ControllerBase
     {
         private IUnitOfWork UnitOfWork { get; set; }
 
-        public TripController(IUnitOfWork unitOfWork)
+        public TripsController(IUnitOfWork unitOfWork)
         {
             UnitOfWork = unitOfWork;
         }
@@ -56,14 +56,24 @@ namespace CalendarAPI.Controllers
             return Ok(trip);
         }
 
-        // PUT api/<TripController>/5
-        [HttpPut("{id}")]
+        [HttpPut]
         public ActionResult<Trip> ChangeTrip([FromBody] Trip trip)
         {
-            throw new NotImplementedException();
+            if (trip == null)
+            {
+                return BadRequest();
+            }
+            var tripToChange = UnitOfWork.Trips.GetById(trip.Id);
+            tripToChange.Cost = trip.Cost;
+            tripToChange.StartDate = trip.StartDate;
+            tripToChange.EndDate = trip.EndDate;
+            tripToChange.AmountParticipants = trip.AmountParticipants;
+            tripToChange.Title = trip.Title;
+            UnitOfWork.Save();
+
+            return Ok(tripToChange);
         }
 
-        // DELETE api/<TripController>/5
         [HttpDelete("{id}")]
         public ActionResult DeleteTrip( int id)
         {

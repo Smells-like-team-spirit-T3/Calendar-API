@@ -11,11 +11,11 @@ namespace CalendarAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class EventController : ControllerBase
+    public class EventsController : ControllerBase
     {
         private IUnitOfWork UnitOfWork { get; set; }
 
-        public EventController(IUnitOfWork unitOfWork)
+        public EventsController(IUnitOfWork unitOfWork)
         {
             UnitOfWork = unitOfWork;
         }
@@ -59,15 +59,27 @@ namespace CalendarAPI.Controllers
             return Ok(value);
         }
 
-        // PUT api/<EventController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPut]
+        public ActionResult<Event> ChangeEvent([FromBody] Event value)
         {
+            if (value == null)
+            {
+                return BadRequest();
+            }
+            var eventToChange = UnitOfWork.Events.GetById(value.Id);
+            eventToChange.Title = value.Title;
+            eventToChange.Description = value.Description;
+            eventToChange.Cost = value.Cost;
+            eventToChange.Type = value.Type;
+            eventToChange.StartDate = value.StartDate;
+            eventToChange.EndDate = value.EndDate;
+            UnitOfWork.Save();
+
+            return Ok(eventToChange);
         }
 
-        // DELETE api/<EventController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public void DeleteEvent(int id)
         {
         }
     }
