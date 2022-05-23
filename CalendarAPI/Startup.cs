@@ -26,6 +26,7 @@ namespace CalendarAPI
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors();
             var connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<CalendarContext>(options => options.UseSqlServer(connection));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -40,9 +41,14 @@ namespace CalendarAPI
                 app.UseDeveloperExceptionPage();
             }
 
+
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors(builder => builder.AllowAnyOrigin()
+                                          .AllowAnyMethod()
+                                          .AllowAnyHeader());
 
             app.UseAuthorization();
 
