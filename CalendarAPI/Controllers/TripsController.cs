@@ -75,9 +75,21 @@ namespace CalendarAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public ActionResult DeleteTrip( int id)
+        public ActionResult DeleteTrip(int id)
         {
-            throw new NotImplementedException();
+            Trip trip;
+            try
+            {
+                trip = UnitOfWork.Trips.GetById(id);
+            }
+            catch (NullReferenceException e)
+            {
+                return BadRequest();
+            }
+            UnitOfWork.Trips.Remove(trip);
+            UnitOfWork.Save();
+
+            return NoContent();
         }
     }
 }

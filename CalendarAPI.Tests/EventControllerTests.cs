@@ -208,5 +208,39 @@ namespace CalendarAPI.Tests
             // Assert
             Assert.Equal(expected.StatusCode, result.StatusCode);
         }
+
+        [Fact]
+        public void DeleteEventGetsExistingIdReturnsCode204()
+        {
+            // Arrange
+            var mockUnitOfWork = new Mock<IUnitOfWork>();
+            mockUnitOfWork.Setup(unit => unit.Events.GetById(0)).Returns(events[0]);
+
+            var controller = new EventsController(mockUnitOfWork.Object);
+
+            // Act
+            var result = controller.DeleteEvent(0) as NoContentResult;
+            var expected = controller.NoContent();
+
+            // Assert
+            Assert.Equal(expected.StatusCode, expected.StatusCode);
+        }
+
+        [Fact]
+        public void DeleteEventGetsWrongIdReturnsCode400()
+        {
+            // Arrange
+            var mockUnitOfWork = new Mock<IUnitOfWork>();
+            mockUnitOfWork.Setup(unit => unit.Events.GetById(10)).Throws(new NullReferenceException());
+
+            var controller = new EventsController(mockUnitOfWork.Object);
+
+            // Act
+            var result = controller.DeleteEvent(10) as BadRequestResult;
+            var expected = controller.BadRequest();
+
+            // Assert
+            Assert.Equal(expected.StatusCode, expected.StatusCode);
+        }
     }
 }

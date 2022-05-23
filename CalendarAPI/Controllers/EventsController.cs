@@ -79,8 +79,20 @@ namespace CalendarAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public void DeleteEvent(int id)
+        public ActionResult DeleteEvent(int id)
         {
+            Event eventToDelete;
+            try
+            {
+                eventToDelete = UnitOfWork.Events.GetById(id);
+            }
+            catch (NullReferenceException e)
+            {
+                return BadRequest();
+            }
+            UnitOfWork.Events.Remove(eventToDelete);
+            UnitOfWork.Save();
+            return NoContent();
         }
     }
 }
