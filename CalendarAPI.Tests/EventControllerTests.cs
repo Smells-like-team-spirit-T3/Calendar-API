@@ -210,6 +210,50 @@ namespace CalendarAPI.Tests
         }
 
         [Fact]
+        public void ChangeManyEventsGetsListOfEventsReturnsChangedEvents()
+        {
+            // Arrange
+            events[1].Id = 0;
+
+            var mockUnitOfWork = new Mock<IUnitOfWork>();
+            mockUnitOfWork.Setup(unit => unit.Events.GetById(events[1].Id)).Returns(events[0]);
+
+            var controller = new EventsController(mockUnitOfWork.Object);
+
+            // Act
+            var okObject = controller.ChangeManyEvents(new List<Event>() { events[1] }).Result as OkObjectResult;
+            var result = okObject.Value as List<Event>;
+            var expected = events[1];
+
+            // Assert
+            Assert.Equal(expected.Id, result[0].Id);
+            Assert.Equal(expected.Title, result[0].Title);
+            Assert.Equal(expected.Cost, result[0].Cost);
+            Assert.Equal(expected.Description, result[0].Description);
+            Assert.Equal(expected.EndDate, result[0].EndDate);
+            Assert.Equal(expected.StartDate, result[0].StartDate);
+            Assert.Equal(expected.Type, result[0].Type);
+        }
+
+        [Fact]
+        public void ChangeManyEventsGetsNullReturnsCode400()
+        {
+            // Arrange
+            var mockUnitOfWork = new Mock<IUnitOfWork>();
+            var mockEventRepository = new Mock<IEventRepository>();
+            mockUnitOfWork.SetupGet(unit => unit.Events).Returns(mockEventRepository.Object);
+
+            var controller = new EventsController(mockUnitOfWork.Object);
+
+            // Act
+            var result = controller.ChangeManyEvents(null).Result as BadRequestResult;
+            var expected = controller.BadRequest();
+
+            // Assert
+            Assert.Equal(expected.StatusCode, result.StatusCode);
+        }
+
+        [Fact]
         public void DeleteEventGetsExistingIdReturnsCode204()
         {
             // Arrange

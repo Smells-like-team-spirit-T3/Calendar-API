@@ -26,12 +26,12 @@ namespace CalendarAPI.Models.Repositories.Base
             context.Set<T>().AddRange(entities);
         }
 
-        public IEnumerable<T> GetAll()
+        virtual public IEnumerable<T> GetAll()
         {
             return context.Set<T>().ToList();
         }
 
-        public T GetById(int? id)
+        virtual public T GetById(int? id)
         {
             var result = context.Set<T>().Find(id);
             if (result == null)

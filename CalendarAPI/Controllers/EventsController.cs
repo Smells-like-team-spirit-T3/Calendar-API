@@ -52,7 +52,6 @@ namespace CalendarAPI.Controllers
             {
                 return BadRequest();
             }
-            UnitOfWork.Events.Add(value);
             var targetTrip = UnitOfWork.Trips.GetById(id);
             targetTrip.Events.Add(value);
             UnitOfWork.Save();
@@ -71,11 +70,30 @@ namespace CalendarAPI.Controllers
             eventToChange.Description = value.Description;
             eventToChange.Cost = value.Cost;
             eventToChange.Type = value.Type;
+            eventToChange.Duration = value.Duration;
             eventToChange.StartDate = value.StartDate;
             eventToChange.EndDate = value.EndDate;
             UnitOfWork.Save();
 
             return Ok(eventToChange);
+        }
+
+        [HttpPut]
+        [Route("list")]
+        public ActionResult<Event> ChangeManyEvents([FromBody] List<Event> values)
+        {
+            if (values == null || values.Count == 0)
+            {
+                return BadRequest();
+            }
+
+            var result = new List<Event>();
+            foreach (var e in values)
+            {
+                var okResult = ChangeEvent(e).Result as OkObjectResult;
+                result.Add(okResult.Value as Event);
+            }
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]
