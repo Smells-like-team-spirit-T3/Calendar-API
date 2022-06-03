@@ -49,7 +49,7 @@ namespace CalendarAPI.Tests
                 Events = events,
                 AmountParticipants = 6,
                 Cost = 2000,
-                Id = 1,
+                Id = "1",
                 Title = "Trip-1",
                 StartDate = new DateTime(2002, 12, 21),
                 EndDate = new DateTime(2003, 1, 25)
@@ -61,12 +61,12 @@ namespace CalendarAPI.Tests
         {
             // Arrange
             var mockUnitOfWork = new Mock<IUnitOfWork>();
-            mockUnitOfWork.Setup(unit => unit.Trips.GetById(0)).Returns(trip);
+            mockUnitOfWork.Setup(unit => unit.Trips.GetById("0")).Returns(trip);
 
             var controller = new EventsController(mockUnitOfWork.Object);
 
             // Act
-            var result = controller.GetEventsByTripId(0).Result as OkObjectResult;
+            var result = controller.GetEventsByTripId("0").Result as OkObjectResult;
             var expected = events;
 
             // Assert
@@ -80,12 +80,12 @@ namespace CalendarAPI.Tests
             trip.Events = new List<Event>();
 
             var mockUnitOfWork = new Mock<IUnitOfWork>();
-            mockUnitOfWork.Setup(unit => unit.Trips.GetById(0)).Returns(trip);
+            mockUnitOfWork.Setup(unit => unit.Trips.GetById("0")).Returns(trip);
 
             var controller = new EventsController(mockUnitOfWork.Object);
 
             // Act
-            var result = controller.GetEventsByTripId(0).Result as NotFoundResult;
+            var result = controller.GetEventsByTripId("0").Result as NotFoundResult;
             var expected = controller.NotFound();
 
             // Assert
@@ -132,18 +132,18 @@ namespace CalendarAPI.Tests
             // Arrange
             var mockUnitOfWork = new Mock<IUnitOfWork>();
             var mockTripRepository = new Mock<ITripRepository>();
-            mockTripRepository.Setup(repo => repo.GetById(0)).Returns(trip);
+            mockTripRepository.Setup(repo => repo.GetById("0")).Returns(trip);
             mockUnitOfWork.SetupGet(unit => unit.Trips).Returns(mockTripRepository.Object);
 
             var controller = new EventsController(mockUnitOfWork.Object);
 
             // Act
-            var result = controller.AddEventToTrip(0, events[0]).Result as OkObjectResult;
+            var result = controller.AddEventToTrip("0", events[0]).Result as OkObjectResult;
             var expected = events[0];
 
             // Assert
             Assert.Equal(expected, result.Value);
-            mockTripRepository.Verify(mock => mock.GetById(0));
+            mockTripRepository.Verify(mock => mock.GetById("0"));
             mockUnitOfWork.Verify(mock => mock.Save());
         }
 
@@ -158,7 +158,7 @@ namespace CalendarAPI.Tests
             var controller = new EventsController(mockUnitOfWork.Object);
 
             // Act
-            var result = controller.AddEventToTrip(0,null).Result as BadRequestResult;
+            var result = controller.AddEventToTrip("0",null).Result as BadRequestResult;
             var expected = controller.BadRequest();
 
             // Assert

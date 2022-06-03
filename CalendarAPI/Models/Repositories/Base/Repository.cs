@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CalendarAPI.Models.Repositories.Base
 {
-    public class Repository<T> : IRepository<T> where T : class
+    public class Repository<T, I> : IRepository<T, I> where T : class
     {
         protected readonly DbContext context;
 
@@ -31,7 +31,7 @@ namespace CalendarAPI.Models.Repositories.Base
             return context.Set<T>().ToList();
         }
 
-        virtual public T GetById(int? id)
+        virtual public T GetById(I id)
         {
             var result = context.Set<T>().Find(id);
             if (result == null)

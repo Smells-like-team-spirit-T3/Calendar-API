@@ -1,5 +1,6 @@
 ﻿using CalendarAPI.Models;
 using CalendarAPI.Models.CalendarModels;
+using CalendarAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -13,11 +14,13 @@ namespace CalendarAPI.Controllers
     [ApiController]
     public class TripsController : ControllerBase
     {
+        private IIdService IdGenerator { get; set; }
         private IUnitOfWork UnitOfWork { get; set; }
 
-        public TripsController(IUnitOfWork unitOfWork)
+        public TripsController(IUnitOfWork unitOfWork, IIdService idGenerator)
         {
             UnitOfWork = unitOfWork;
+            IdGenerator = idGenerator;
         }
 
         [HttpGet]
@@ -32,7 +35,7 @@ namespace CalendarAPI.Controllers
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Trip> GetTripById(int id)
+        public ActionResult<Trip> GetTripById(string id)
         {
             try
             {
@@ -51,6 +54,7 @@ namespace CalendarAPI.Controllers
             {
                 return BadRequest();
             }
+            trip.Id = IdGenerator.Get9DigitId();
             UnitOfWork.Trips.Add(trip);
             UnitOfWork.Save();
             return Ok(trip);
@@ -75,7 +79,7 @@ namespace CalendarAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public ActionResult DeleteTrip(int id)
+        public ActionResult DeleteTrip(string id)
         {
             Trip trip;
             try

@@ -22,7 +22,7 @@ namespace CalendarAPI.Controllers
 
         [HttpGet]
         [Route("trip")]
-        public ActionResult<IEnumerable<Event>> GetEventsByTripId([FromQuery]int id)
+        public ActionResult<IEnumerable<Event>> GetEventsByTripId([FromQuery]string id)
         {
             var trip = UnitOfWork.Trips.GetById(id);
             if (trip.Events.Count == 0)
@@ -46,7 +46,7 @@ namespace CalendarAPI.Controllers
         }
 
         [HttpPost]
-        public ActionResult<Event> AddEventToTrip([FromQuery] int id, [FromBody] Event value)
+        public ActionResult<Event> AddEventToTrip([FromQuery] string id, [FromBody] Event value)
         {
             if (value == null)
             {

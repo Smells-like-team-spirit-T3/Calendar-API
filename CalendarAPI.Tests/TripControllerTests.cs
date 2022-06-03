@@ -2,6 +2,7 @@ using CalendarAPI.Controllers;
 using CalendarAPI.Models;
 using CalendarAPI.Models.CalendarModels;
 using CalendarAPI.Models.Interfaces;
+using CalendarAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System;
@@ -24,7 +25,7 @@ namespace CalendarAPI.Tests
                     Events = new List<Event>(),
                     AmountParticipants = 5,
                     Cost = 1000,
-                    Id = 0,
+                    Id = "0",
                     Title = "Trip-0",
                     StartDate = new DateTime(2001, 11, 21),
                     EndDate = new DateTime(2001, 12, 25)
@@ -34,7 +35,7 @@ namespace CalendarAPI.Tests
                     Events = new List<Event>(),
                     AmountParticipants = 6,
                     Cost = 2000,
-                    Id = 1,
+                    Id = "1",
                     Title = "Trip-1",
                     StartDate = new DateTime(2002, 12, 21),
                     EndDate = new DateTime(2003, 1, 25)
@@ -47,9 +48,11 @@ namespace CalendarAPI.Tests
         {
             // Arrange
             var mockUnitOfWork = new Mock<IUnitOfWork>();
+            var mockIdGenerator = new Mock<IIdService>();
 
             mockUnitOfWork.Setup(unit => unit.Trips.GetAll()).Returns(trips);
-            var controller = new TripsController(mockUnitOfWork.Object);
+            
+            var controller = new TripsController(mockUnitOfWork.Object, mockIdGenerator.Object);
 
             // Act
             var result = controller.GetAllTrips().Result as OkObjectResult;
@@ -64,9 +67,10 @@ namespace CalendarAPI.Tests
         {
             // Arrange
             var mockUnitOfWork = new Mock<IUnitOfWork>();
+            var mockIdGenerator = new Mock<IIdService>();
 
             mockUnitOfWork.Setup(unit => unit.Trips.GetAll()).Returns(new List<Trip>());
-            var controller = new TripsController(mockUnitOfWork.Object);
+            var controller = new TripsController(mockUnitOfWork.Object, mockIdGenerator.Object);
 
             // Act
             var result = controller.GetAllTrips().Result as NotFoundResult;
@@ -80,12 +84,13 @@ namespace CalendarAPI.Tests
         {
             // Arrange
             var mockUnitOfWork = new Mock<IUnitOfWork>();
+            var mockIdGenerator = new Mock<IIdService>();
 
-            mockUnitOfWork.Setup(unit => unit.Trips.GetById(0)).Returns(trips[0]);
-            var controller = new TripsController(mockUnitOfWork.Object);
+            mockUnitOfWork.Setup(unit => unit.Trips.GetById("0")).Returns(trips[0]);
+            var controller = new TripsController(mockUnitOfWork.Object, mockIdGenerator.Object);
 
             // Act
-            var result = controller.GetTripById(0).Result as OkObjectResult;
+            var result = controller.GetTripById("0").Result as OkObjectResult;
             var expected = trips[0];
 
             // Assert
@@ -97,12 +102,13 @@ namespace CalendarAPI.Tests
         {
             // Arrange
             var mockUnitOfWork = new Mock<IUnitOfWork>();
+            var mockIdGenerator = new Mock<IIdService>();
 
-            mockUnitOfWork.Setup(unit => unit.Trips.GetById(0)).Throws(new NullReferenceException());
-            var controller = new TripsController(mockUnitOfWork.Object);
+            mockUnitOfWork.Setup(unit => unit.Trips.GetById("0")).Throws(new NullReferenceException());
+            var controller = new TripsController(mockUnitOfWork.Object, mockIdGenerator.Object);
 
             // Act
-            var result = controller.GetTripById(0).Result as NotFoundResult;
+            var result = controller.GetTripById("0").Result as NotFoundResult;
 
             // Assert
             Assert.Equal(controller.NotFound().StatusCode, result.StatusCode);
@@ -113,9 +119,11 @@ namespace CalendarAPI.Tests
         {
             // Arrange
             var mockUnitOfWork = new Mock<IUnitOfWork>();
+            var mockIdGenerator = new Mock<IIdService>();
 
             mockUnitOfWork.SetupGet(unit => unit.Trips).Returns(new Mock<ITripRepository>().Object);
-            var controller = new TripsController(mockUnitOfWork.Object);
+            mockIdGenerator.Setup(mock => mock.Get9DigitId()).Returns("0");
+            var controller = new TripsController(mockUnitOfWork.Object, mockIdGenerator.Object);
 
             // Act
             var result = controller.AddTrip(trips[0]).Result as OkObjectResult;
@@ -133,9 +141,10 @@ namespace CalendarAPI.Tests
             // Arrange
             var mockUnitOfWork = new Mock<IUnitOfWork>();
             var mockTripRepository = new Mock<ITripRepository>();
+            var mockIdGenerator = new Mock<IIdService>();
             mockUnitOfWork.SetupGet(unit => unit.Trips).Returns(mockTripRepository.Object);
 
-            var controller = new TripsController(mockUnitOfWork.Object);
+            var controller = new TripsController(mockUnitOfWork.Object, mockIdGenerator.Object);
 
             // Act
             var result = controller.AddTrip(null).Result as BadRequestResult;
@@ -149,12 +158,13 @@ namespace CalendarAPI.Tests
         public void ChangeTripGetsTripReturnsChangedTrip()
         {
             // Arrange
-            trips[1].Id = 0;
+            trips[1].Id = "0";
 
             var mockUnitOfWork = new Mock<IUnitOfWork>();
+            var mockIdGenerator = new Mock<IIdService>();
             mockUnitOfWork.Setup(unit => unit.Trips.GetById(trips[1].Id)).Returns(trips[0]);
 
-            var controller = new TripsController(mockUnitOfWork.Object);
+            var controller = new TripsController(mockUnitOfWork.Object, mockIdGenerator.Object);
 
             // Act
             var okObject = controller.ChangeTrip(trips[1]).Result as OkObjectResult;
@@ -176,9 +186,10 @@ namespace CalendarAPI.Tests
             // Arrange
             var mockUnitOfWork = new Mock<IUnitOfWork>();
             var mockTripRepository = new Mock<ITripRepository>();
+            var mockIdGenerator = new Mock<IIdService>();
             mockUnitOfWork.SetupGet(unit => unit.Trips).Returns(mockTripRepository.Object);
 
-            var controller = new TripsController(mockUnitOfWork.Object);
+            var controller = new TripsController(mockUnitOfWork.Object, mockIdGenerator.Object);
 
             // Act
             var result = controller.ChangeTrip(null).Result as BadRequestResult;
@@ -193,12 +204,13 @@ namespace CalendarAPI.Tests
         {
             // Arrange
             var mockUnitOfWork = new Mock<IUnitOfWork>();
-            mockUnitOfWork.Setup(unit => unit.Trips.GetById(0)).Returns(trips[0]);
+            var mockIdGenerator = new Mock<IIdService>();
+            mockUnitOfWork.Setup(unit => unit.Trips.GetById("0")).Returns(trips[0]);
 
-            var controller = new TripsController(mockUnitOfWork.Object);
+            var controller = new TripsController(mockUnitOfWork.Object, mockIdGenerator.Object);
 
             // Act
-            var result = controller.DeleteTrip(0) as NoContentResult;
+            var result = controller.DeleteTrip("0") as NoContentResult;
             var expected = controller.NoContent();
 
             // Assert
@@ -210,12 +222,13 @@ namespace CalendarAPI.Tests
         {
             // Arrange
             var mockUnitOfWork = new Mock<IUnitOfWork>();
-            mockUnitOfWork.Setup(unit => unit.Trips.GetById(10)).Throws(new NullReferenceException());
+            var mockIdGenerator = new Mock<IIdService>();
+            mockUnitOfWork.Setup(unit => unit.Trips.GetById("10")).Throws(new NullReferenceException());
 
-            var controller = new TripsController(mockUnitOfWork.Object);
+            var controller = new TripsController(mockUnitOfWork.Object, mockIdGenerator.Object);
 
             // Act
-            var result = controller.DeleteTrip(10) as BadRequestResult;
+            var result = controller.DeleteTrip("10") as BadRequestResult;
             var expected = controller.BadRequest();
 
             // Assert

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CalendarAPI.Models.Repositories
 {
-    public class TripRepository : Repository<Trip>, ITripRepository
+    public class TripRepository : Repository<Trip, string>, ITripRepository
     {
         private CalendarContext Context { get => context as CalendarContext; }
 
@@ -20,7 +20,7 @@ namespace CalendarAPI.Models.Repositories
             return context.Set<Trip>().Include(trip => trip.Events).ToList();
         }
 
-        public override Trip GetById(int? id)
+        public override Trip GetById(string id)
         {
             var result = context.Set<Trip>().Include(trip => trip.Events).ToList().Find(t => t.Id == id);
             if (result == null)

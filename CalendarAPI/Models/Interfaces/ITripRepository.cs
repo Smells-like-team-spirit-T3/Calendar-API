@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CalendarAPI.Models.Interfaces
 {
-    public interface ITripRepository : IRepository<Trip>
+    public interface ITripRepository : IRepository<Trip, string>
     {
     }
 }

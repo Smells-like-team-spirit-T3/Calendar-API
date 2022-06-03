@@ -1,4 +1,6 @@
 using CalendarAPI.Models;
+using CalendarAPI.Services.Implementations;
+using CalendarAPI.Services.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -27,9 +29,12 @@ namespace CalendarAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
+
             var connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<CalendarContext>(options => options.UseSqlServer(connection));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            services.AddSingleton<IIdService, IdService>();
 
             services.AddControllers();
         }

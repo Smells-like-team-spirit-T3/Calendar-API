@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CalendarAPI.Models.Repositories
 {
-    public class EventRepository : Repository<Event>, IEventRepository
+    public class EventRepository : Repository<Event, int>, IEventRepository
     {
         private CalendarContext Context { get => context as CalendarContext; }
 

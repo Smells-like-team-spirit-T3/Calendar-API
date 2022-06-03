@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CalendarAPI.Models.Interfaces
 {
-    public interface IEventRepository : IRepository<Event>
+    public interface IEventRepository : IRepository<Event, int>
     {
     }
 }
